@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quiz · Transferencia de Calor I · Universidad de América</title>
+<meta name="description" content="Banco de 20 preguntas de repaso sobre superficies extendidas (aletas), convección y radiación. Universidad de América, Transferencia de Calor I. Orden de preguntas y respuestas aleatorio en cada intento." />
+<style>
+  :root{
+    --bg:#f5f6fa; --card:#ffffff; --ink:#1e2233; --muted:#6b7280;
+    --line:#e5e7eb; --accent:#4f46e5; --accent-soft:#eef2ff;
+    --ok:#16a34a; --ok-soft:#ecfdf5; --bad:#dc2626; --bad-soft:#fef2f2;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    display:flex; justify-content:center; padding:24px 16px 56px;
+  }
+  .wrap{width:100%; max-width:780px}
+  header.card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 24px; margin-bottom:18px;
+  }
+  h1{font-size:1.35rem; margin:0 0 6px; letter-spacing:-.01em}
+  .sub{color:var(--muted); font-size:.92rem; margin:0 0 14px}
+  .meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px 18px; margin:0; padding:0; list-style:none}
+  .meta li{font-size:.9rem; border-left:3px solid var(--accent-soft); padding-left:10px}
+  .meta b{display:block; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 24px;
+  }
+  .bar{height:8px; background:var(--line); border-radius:99px; overflow:hidden; margin-bottom:6px}
+  .bar > i{display:block; height:100%; width:0; background:var(--accent); border-radius:99px; transition:width .25s ease}
+  .progress{display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); margin-bottom:16px}
+  .qtext{font-size:1.06rem; font-weight:600; margin:0 0 16px}
+  .opts{display:grid; gap:10px}
+  button.opt{
+    all:unset; display:block; width:100%; text-align:left; cursor:pointer;
+    border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:.97rem;
+    background:#fff; transition:background .12s, border-color .12s, transform .06s;
+  }
+  button.opt:hover:not(:disabled){background:var(--accent-soft); border-color:#c7d2fe}
+  button.opt:active:not(:disabled){transform:scale(.995)}
+  button.opt:disabled{cursor:default}
+  button.opt.correct{background:var(--ok-soft); border-color:var(--ok); color:#14532d}
+  button.opt.wrong{background:var(--bad-soft); border-color:var(--bad); color:#7f1d1d}
+  button.opt.dim{opacity:.55}
+  .key{display:inline-block; min-width:22px; font-size:.78rem; font-weight:700; color:var(--muted); margin-right:8px}
+  .feedback{margin-top:16px; padding:14px 16px; border-radius:10px; font-size:.93rem; border:1px solid var(--line); background:#f9fafb}
+  .feedback.ok{background:var(--ok-soft); border-color:#a7f3d0}
+  .feedback.bad{background:var(--bad-soft); border-color:#fecaca}
+  .feedback h3{margin:0 0 6px; font-size:.95rem}
+  .feedback p{margin:0}
+  .actions{margin-top:18px; display:flex; gap:10px; flex-wrap:wrap}
+  .btn{
+    all:unset; cursor:pointer; border-radius:10px; padding:11px 18px; font-weight:600; font-size:.95rem;
+    background:var(--accent); color:#fff; text-align:center;
+  }
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:#fff; color:var(--ink); border:1px solid var(--line)}
+  .btn.ghost:hover{background:#f3f4f6; filter:none}
+  .score{font-size:2.1rem; font-weight:800; margin:4px 0 2px; letter-spacing:-.02em}
+  .review{margin-top:20px; display:grid; gap:14px}
+  .review .item{border:1px solid var(--line); border-radius:10px; padding:14px 16px; background:#fff}
+  .review .item.bad{border-left:4px solid var(--bad)}
+  .review .item.good{border-left:4px solid var(--ok)}
+  .review h4{margin:0 0 8px; font-size:.95rem}
+  .review p{margin:4px 0; font-size:.9rem}
+  .tag{display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.04em; padding:2px 8px; border-radius:99px; text-transform:uppercase}
+  .tag.bad{background:var(--bad-soft); color:var(--bad)}
+  .tag.good{background:var(--ok-soft); color:var(--ok)}
+  footer{color:var(--muted); font-size:.8rem; text-align:center; margin-top:22px; line-height:1.5}
+  sub,sup{font-size:.72em}
+  .hint{font-size:.8rem; color:var(--muted); margin-top:12px}
+  @media (max-width:520px){
+    body{padding:12px 10px 40px}
+    .card, header.card{padding:18px 16px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="card">
+    <h1 id="titulo">Quiz de repaso</h1>
+    <p class="sub" id="bajada"></p>
+    <ul class="meta">
+      <li><b>Universidad</b><span id="m-universidad"></span></li>
+      <li><b>Profesor</b><span id="m-profesor"></span></li>
+      <li><b>Materia</b><span id="m-materia"></span></li>
+      <li><b>Tema</b><span id="m-tema"></span></li>
+      <li><b>Estudiante</b><span id="m-estudiante"></span></li>
+      <li><b>Periodo</b><span id="m-periodo"></span></li>
+    </ul>
+  </header>
+
+  <main class="card" id="app"></main>
+
+  <footer>
+    <div id="pie"></div>
+    <div>Cada intento mezcla las preguntas y el orden de las opciones de respuesta.</div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================================
+   1) DATOS DEL PROYECTO  —  ✏️ EDITA ESTE BLOQUE CON TUS DATOS
+   ========================================================================== */
+const PROYECTO = {
+  titulo:       "Quiz: Aletas, Convección y Radiación",
+  bajada:       "Banco de repaso conceptual de la asignatura Transferencia de Calor I.",
+  universidad:  "Universidad de América",
+  materia:      "Transferencia de Calor I",
+  profesor:     "Ph. D. Juan Sandoval Herrera",
+  tema:         "Superficies extendidas (aletas), convección y radiación",
+  estudiante:   "Tu Nombre Completo ✏️",
+  periodo:      "2026-2 ✏️",
+  repositorio:  "quiz-transferencia-calor"   // nombre del repo en GitHub
+};
+
+/* ============================================================================
+   2) BANCO DE PREGUNTAS
+   - question:      enunciado corto (puede incluir HTML: <sub>, <sup>, &infin;)
+   - options:       lista de alternativas; la primera es la CORRECTA al cargar
+   - correctIndex:  índice de la respuesta correcta dentro de `options`
+   - rationale:     retroalimentación que se muestra al responder
+   El programa mezcla el orden de las preguntas y de las opciones en cada intento.
+   ========================================================================== */
+const PREGUNTAS = [
+  {
+    question: "¿Para qué sirve la longitud corregida L<sub>c</sub> en aletas?",
+    options: [
+      "Para usar la fórmula de punta adiabática en aletas reales que sí pierden calor por la punta",
+      "Para medir la longitud física real del metal de la aleta",
+      "Para corregir el área de la base sumando el espesor del tubo",
+      "Para calcular el calor exacto perdido por la punta"
+    ],
+    correctIndex: 0,
+    rationale: "L<sub>c</sub> = L + t/2 alarga la aleta “artificialmente” para absorber el calor que escapa por la punta. Así se puede usar la ecuación simplificada de punta adiabática sin resolver el caso real completo."
+  },
+  {
+    question: "¿Qué indica la efectividad de una aleta (&epsilon;<sub>f</sub>)?",
+    options: [
+      "Si vale la pena instalarla: compara el calor disipado con aleta frente al de la superficie desnuda",
+      "Qué tan cerca está la aleta de su temperatura máxima ideal",
+      "La temperatura de la punta respecto a la del ambiente",
+      "La relación entre el peso de la aleta y su área"
+    ],
+    correctIndex: 0,
+    rationale: "La efectividad compara el calor transferido con aleta contra el que transfería la superficie pelada original. Si vale ≤ 1 fue un pésimo negocio; se suele exigir > 2 para justificar material y manufactura."
+  },
+  {
+    question: "Si una aleta tiene una eficiencia del 98%, ¿qué significa?",
+    options: [
+      "Que disipa el 98% del calor que disiparía si toda ella estuviera a la temperatura de la base",
+      "Que el 98% del calor se pierde por la punta",
+      "Que solo el 2% del área de la aleta disipa calor",
+      "Que la aleta cuesta el 98% del presupuesto del equipo"
+    ],
+    correctIndex: 0,
+    rationale: "La eficiencia (&eta;<sub>f</sub>) compara el calor real con el máximo ideal, que solo ocurre con conductividad infinita (toda la aleta tan caliente como la base). 98% indica una aleta muy bien aprovechada."
+  },
+  {
+    question: "¿En qué ambiente es más lógico instalar aletas disipadoras?",
+    options: [
+      "Donde la convección es débil (h pequeño), como el aire en reposo",
+      "Donde la convección es intensa (h grande), como el agua en ebullición",
+      "En vacío, donde no hay fluido",
+      "Es indistinto: las aletas rinden igual en cualquier fluido"
+    ],
+    correctIndex: 0,
+    rationale: "Si el ambiente ya roba calor muy bien (h grande), las aletas aportan poco. Se justifican cuando al ambiente le cuesta llevarse el calor (aire quieto, gases) y hay que compensar aumentando el área."
+  },
+  {
+    question: "¿Cuándo una aleta finita se comporta como si fuera “infinitamente larga”?",
+    options: [
+      "Cuando la temperatura de su punta ya es igual a la del ambiente",
+      "Cuando mide más de un metro de longitud",
+      "Cuando su base supera los 100 °C",
+      "Cuando está fabricada en cobre"
+    ],
+    correctIndex: 0,
+    rationale: "Es “termodinámicamente infinita” si el calor se agota antes del final: T<sub>L</sub> = T<sub>&infin;</sub>. Todo el metal que se agregue a partir de ese punto es material desperdiciado."
+  },
+  {
+    question: "Cambias una aleta de cobre por acero inoxidable (k menor). ¿Qué ocurre?",
+    options: [
+      "El parámetro m aumenta y la eficiencia de la aleta baja",
+      "El parámetro m disminuye y la eficiencia sube",
+      "m no cambia: solo depende de la geometría",
+      "m se hace cero y la aleta deja de conducir"
+    ],
+    correctIndex: 0,
+    rationale: "Con m = &radic;(hP/kA<sub>c</sub>), al bajar k crece m: el calor se “traba” y la temperatura cae enseguida al alejarse de la base, derrumbando la eficiencia y la efectividad."
+  },
+  {
+    question: "En una superficie con aletas, ¿dónde se aplica la eficiencia &eta;<sub>f</sub>?",
+    options: [
+      "Solo al área superficial de las aletas",
+      "A toda el área: aletas y base por igual",
+      "Solo al área descubierta de la base entre aletas",
+      "Al coeficiente de convección h"
+    ],
+    correctIndex: 0,
+    rationale: "El área desnuda de la base trabaja a la temperatura de la base (factor 1). La eficiencia es un factor de penalización (< 1) que solo castiga al área de las aletas."
+  },
+  {
+    question: "Debes disipar 1000 W con poco volumen. ¿Qué geometría eliges?",
+    options: [
+      "Muchas aletas finas bien apiñadas, como un radiador de carro",
+      "Pocas aletas muy gruesas y separadas",
+      "Una sola aleta extremadamente larga",
+      "Un bloque sólido de metal sin aletas"
+    ],
+    correctIndex: 0,
+    rationale: "Con volumen limitado conviene maximizar el área usando muchas aletas delgadas. Aunque cada aleta fina sea menos eficiente, el aumento brutal de área total domina la transferencia."
+  },
+  {
+    question: "¿Cuándo conviene usar aletas de sección decreciente (espinas)?",
+    options: [
+      "Cuando se quiere ahorrar material y peso manteniendo buena transferencia",
+      "Cuando se busca aumentar la temperatura de la base",
+      "Cuando se quiere eliminar la convección en la punta",
+      "Cuando se busca fabricarlas más rápido"
+    ],
+    correctIndex: 0,
+    rationale: "Lejos de la base queda menos calor por conducir, así que mantener el espesor gasta masa inútil. Los perfiles decrecientes ahorran peso y se usan mucho en aeronáutica."
+  },
+  {
+    question: "¿Qué supuesto sobre el tiempo hacen las ecuaciones clásicas de aletas?",
+    options: [
+      "Régimen estacionario: la temperatura no cambia con el tiempo (&part;T/&part;t = 0)",
+      "Régimen transitorio: el equipo acaba de encenderse",
+      "Temperatura oscilando de forma sinusoidal",
+      "Flujo pulsante del fluido"
+    ],
+    correctIndex: 0,
+    rationale: "Las soluciones con tangentes hiperbólicas y exponenciales asumen estado estacionario. En el arranque (transitorio) esas fórmulas no describen el fenómeno."
+  },
+  {
+    question: "¿Qué representa físicamente el número de Reynolds?",
+    options: [
+      "La relación entre fuerzas de inercia y fuerzas viscosas",
+      "La relación entre calor transferido y masa del fluido",
+      "La relación entre presión y velocidad",
+      "La relación entre viscosidad y conductividad térmica"
+    ],
+    correctIndex: 0,
+    rationale: "Re mide quién gana la pelea molecular: la inercia que empuja frente a la fricción viscosa. Un Re alto indica régimen turbulento, ideal para transferir calor."
+  },
+  {
+    question: "Si aceleras el ventilador, ¿qué pasa según Nu = C·Re<sup>m</sup>·Pr<sup>n</sup>?",
+    options: [
+      "Aumenta Re, sube Nu y por tanto crece el coeficiente h",
+      "Aumenta Re pero disminuye h",
+      "No cambia nada: h no depende de la velocidad",
+      "Solo cambia el número de Prandtl"
+    ],
+    correctIndex: 0,
+    rationale: "Más velocidad dispara Re; al elevarse Re en la correlación, Nu crece y con él el coeficiente convectivo h, mejorando el enfriamiento."
+  },
+  {
+    question: "¿Qué describe el número de Prandtl?",
+    options: [
+      "La difusividad de momento frente a la difusividad térmica del fluido",
+      "La convección frente a la conducción en el sólido",
+      "La velocidad del fluido frente a su temperatura",
+      "La viscosidad frente a la densidad"
+    ],
+    correctIndex: 0,
+    rationale: "Pr = &nu;/&alpha; es propiedad exclusiva del fluido: compara el espesor de la capa límite hidrodinámica con el de la térmica. El aire vale aproximadamente 0,71."
+  },
+  {
+    question: "¿Por qué los pernos y bridas arruinan el aislamiento de un equipo?",
+    options: [
+      "Porque forman un puente térmico: un camino metálico de muy baja resistencia",
+      "Porque aumentan la emisividad de la superficie",
+      "Porque reducen el área disponible para la radiación",
+      "Porque reflejan la radiación hacia el interior"
+    ],
+    correctIndex: 0,
+    rationale: "Aunque el gabinete esté bien aislado, el tornillo de acero (k ≈ 15 W/m·K) abre un atajo conductor directo entre el interior caliente y el exterior frío. El calor toma siempre el camino más fácil."
+  },
+  {
+    question: "Aíslas un alambre delgado y la fuga de calor aumenta. ¿Por qué?",
+    options: [
+      "El radio está por debajo del radio crítico: gana el aumento del área externa de convección",
+      "El aislante conduce mejor que el metal del alambre",
+      "El alambre elevó su temperatura al aislarlo",
+      "Desaparece la radiación de la superficie"
+    ],
+    correctIndex: 0,
+    rationale: "Radio crítico de aislamiento: en geometrías cilíndricas o esféricas delgadas, al agregar aislante crece el área externa de convección. Si r < r<sub>cr</sub> = k/h, ese efecto vence a la barrera conductiva y aumenta la fuga global."
+  },
+  {
+    question: "¿Por qué no se puede despreciar la radiación en aletas a 900 °C?",
+    options: [
+      "Porque la radiación crece con la diferencia de temperaturas elevada a la cuarta potencia",
+      "Porque a alta temperatura el coeficiente h se hace cero",
+      "Porque la convección se anula por completo",
+      "Porque la emisividad se vuelve igual a 1"
+    ],
+    correctIndex: 0,
+    rationale: "Según Stefan-Boltzmann, q = &sigma;&epsilon;A(T<sub>s</sub><sup>4</sup> − T<sub>&infin;</sub><sup>4</sup>). Por encima de unos 400 °C ese término crece de forma explosiva y domina la transferencia total."
+  },
+  {
+    question: "¿Cuál es la mejor solución integral para reducir las pérdidas de un secador?",
+    options: [
+      "Aislar con fibra de baja conductividad y forrar con papel aluminio brillante",
+      "Pintar el equipo de negro mate",
+      "Dejar los ductos desnudos para que se enfríen más rápido",
+      "Aumentar la velocidad del aire de salida"
+    ],
+    correctIndex: 0,
+    rationale: "La fibra o lana de roca (k baja) frena conducción y convección; el aluminio brillante (emisividad casi nula) rebota el intercambio infrarrojo. Se atacan los dos mecanismos a la vez."
+  },
+  {
+    question: "¿Qué es el exceso de temperatura &theta;<sub>b</sub> en una aleta?",
+    options: [
+      "La diferencia entre la temperatura de la base y la del ambiente: T<sub>b</sub> − T<sub>&infin;</sub>",
+      "La diferencia T<sub>&infin;</sub> − T<sub>b</sub>",
+      "El cociente T<sub>b</sub> / T<sub>&infin;</sub>",
+      "El producto m·L de la aleta"
+    ],
+    correctIndex: 0,
+    rationale: "&theta;<sub>b</sub> = T<sub>b</sub> − T<sub>&infin;</sub> es la fuerza motriz del fenómeno: define cuánto empuje térmico inicial tiene la aleta para mover el calor a lo largo del metal."
+  },
+  {
+    question: "tanh(mL) se satura en 1 al alargar la aleta. ¿Qué significa?",
+    options: [
+      "Que seguir alargándola ya casi no aumenta el calor disipado",
+      "Que la aleta se volvió completamente adiabática",
+      "Que la eficiencia de la aleta es cero",
+      "Que conviene seguir agregando longitud sin límite"
+    ],
+    correctIndex: 0,
+    rationale: "Alrededor de mL ≈ 2,6 la aleta ya se comporta como infinita: el metal adicional queda frío, cuesta dinero y no disipa prácticamente nada más."
+  },
+  {
+    question: "Al aumentar el Reynolds del aire sobre una superficie, ¿qué se destruye?",
+    options: [
+      "La capa límite térmica que protege y aisla la superficie",
+      "La conductividad del sólido",
+      "La emisividad del material",
+      "El radio crítico de aislamiento"
+    ],
+    correctIndex: 0,
+    rationale: "La turbulencia rompe la delgada capa de fluido adherida a la pared y renueva el gas frío constantemente, eliminando el estancamiento viscoso que frenaba la transferencia de calor."
+  }
+];
+
+/* ============================================================================
+   3) LÓGICA DEL QUIZ
+   ========================================================================== */
+
+/** Algoritmo de Fisher-Yates: mezcla un arreglo sin modificar el original. */
+function shuffle(lista){
+  const a = lista.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/** Construye una ronda nueva: mezcla preguntas y, dentro de cada una, las opciones. */
+function nuevaRonda(){
+  return shuffle(PREGUNTAS).map(p => {
+    const opciones = shuffle(
+      p.options.map((texto, i) => ({ texto, correcta: i === p.correctIndex }))
+    );
+    return { pregunta: p, opciones, elegida: null };
+  });
+}
+
+let ronda = [];
+let actual = 0;
+let aciertos = 0;
+
+const app = document.getElementById("app");
+
+/* --- Cabecera --- */
+document.getElementById("titulo").textContent = PROYECTO.titulo;
+document.getElementById("bajada").textContent = PROYECTO.bajada;
+document.getElementById("m-universidad").textContent = PROYECTO.universidad;
+document.getElementById("m-profesor").textContent = PROYECTO.profesor;
+document.getElementById("m-materia").textContent = PROYECTO.materia;
+document.getElementById("m-tema").textContent = PROYECTO.tema;
+document.getElementById("m-estudiante").textContent = PROYECTO.estudiante;
+document.getElementById("m-periodo").textContent = PROYECTO.periodo;
+document.getElementById("pie").innerHTML =
+  PROYECTO.universidad + " · " + PROYECTO.materia + " · Prof. " + PROYECTO.profesor +
+  "<br>Repositorio en GitHub: " + PROYECTO.repositorio;
+
+function pantallaInicio(){
+  actual = 0; aciertos = 0;
+  app.innerHTML =
+    '<p class="qtext">' + PREGUNTAS.length + ' preguntas de opción múltiple para repasar antes del examen.</p>' +
+    '<p style="margin:0 0 4px; color:var(--muted); font-size:.93rem">' +
+      'Cada vez que inicies un intento, las preguntas y sus alternativas se reordenan al azar. ' +
+      'Al responder verás la justificación de la respuesta correcta y, al final, tu puntaje con el repaso de los errores.' +
+    '</p>' +
+    '<div class="actions">' +
+      '<button class="btn" id="btn-start">Comenzar el quiz</button>' +
+    '</div>';
+  document.getElementById("btn-start").onclick = () => { ronda = nuevaRonda(); pintarPregunta(); };
+}
+
+function pintarPregunta(){
+  const item = ronda[actual];
+  const n = actual + 1;
+  const pct = ((actual) / ronda.length) * 100;
+
+  app.innerHTML =
+    '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="progress"><span>Pregunta ' + n + ' de ' + ronda.length + '</span>' +
+      '<span>Aciertos: ' + aciertos + '</span></div>' +
+    '<p class="qtext">' + item.pregunta.question + '</p>' +
+    '<div class="opts" id="opts"></div>' +
+    '<div id="fb"></div>' +
+    '<p class="hint">También puedes responder con las teclas 1 a 4.</p>';
+
+  const cont = document.getElementById("opts");
+  item.opciones.forEach((op, i) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = '<span class="key">' + (i + 1) + '</span>' + op.texto;
+    b.onclick = () => responder(i);
+    cont.appendChild(b);
+  });
+}
+
+function responder(i){
+  const item = ronda[actual];
+  if(item.elegida !== null) return;          // ya respondida
+  item.elegida = i;
+  const acerto = item.opciones[i].correcta;
+  if(acerto) aciertos++;
+
+  const botones = document.querySelectorAll("#opts .opt");
+  botones.forEach((b, k) => {
+    b.disabled = true;
+    if(item.opciones[k].correcta) b.classList.add("correct");
+    else if(k === i) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  document.getElementById("fb").innerHTML =
+    '<div class="feedback ' + (acerto ? "ok" : "bad") + '">' +
+      '<h3>' + (acerto ? "✔ Correcto" : "✘ Incorrecto") + '</h3>' +
+      '<p>' + item.pregunta.rationale + '</p>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<button class="btn" id="btn-next">' +
+        (actual + 1 < ronda.length ? "Siguiente pregunta" : "Ver resultado") +
+      '</button>' +
+    '</div>';
+  document.getElementById("btn-next").onclick = () => {
+    if(actual + 1 < ronda.length){ actual++; pintarPregunta(); } else { pantallaFinal(); }
+  };
+  document.getElementById("btn-next").focus();
+}
+
+function pantallaFinal(){
+  const total = ronda.length;
+  const pct = Math.round((aciertos / total) * 100);
+  const comentario =
+    pct >= 90 ? "¡Excelente dominio del tema!" :
+    pct >= 70 ? "Buen resultado, repasa los detalles." :
+    pct >= 50 ? "Vas por buen camino: repasa la teoría." :
+                "Conviene volver a estudiar el tema e intentarlo de nuevo.";
+
+  let html =
+    '<div class="progress"><span>Resultado final</span></div>' +
+    '<p class="qtext">Terminaste el intento</p>' +
+    '<div class="score">' + aciertos + ' / ' + total + '</div>' +
+    '<p style="margin:0; color:var(--muted)">' + pct + '% de aciertos · ' + comentario + '</p>' +
+    '<div class="actions">' +
+      '<button class="btn" id="btn-again">Intentar de nuevo (nuevo orden)</button>' +
+      '<button class="btn ghost" id="btn-home">Volver al inicio</button>' +
+    '</div>' +
+    '<h3 style="margin:26px 0 4px; font-size:1rem">Repaso pregunta por pregunta</h3>' +
+    '<div class="review">';
+
+  ronda.forEach((item, n) => {
+    const elegida = item.opciones[item.elegida];
+    const correcta = item.opciones.find(o => o.correcta);
+    const ok = elegida.correcta;
+    html +=
+      '<div class="item ' + (ok ? "good" : "bad") + '">' +
+        '<h4>' + (n + 1) + '. ' + item.pregunta.question +
+          ' <span class="tag ' + (ok ? "good" : "bad") + '">' + (ok ? "correcta" : "revisar") + '</span></h4>' +
+        '<p><b>Tu respuesta:</b> ' + elegida.texto + '</p>' +
+        (ok ? "" : '<p><b>Respuesta correcta:</b> ' + correcta.texto + '</p>') +
+        '<p style="color:var(--muted)">' + item.pregunta.rationale + '</p>' +
+      '</div>';
+  });
+  html += '</div>';
+  app.innerHTML = html;
+
+  document.getElementById("btn-again").onclick = () => { ronda = nuevaRonda(); actual = 0; aciertos = 0; pintarPregunta(); };
+  document.getElementById("btn-home").onclick = pantallaInicio;
+}
+
+/* Atajos de teclado: 1-4 para responder, Enter para avanzar. */
+document.addEventListener("keydown", e => {
+  const opts = document.querySelectorAll("#opts .opt");
+  if(opts.length && !opts[0].disabled){
+    const n = parseInt(e.key, 10);
+    if(n >= 1 && n <= opts.length){ responder(n - 1); return; }
+  }
+  if(e.key === "Enter"){
+    const next = document.getElementById("btn-next");
+    if(next) next.click();
+  }
+});
+
+pantallaInicio();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a43566d2486345b5',t:'MTc5MDc5NDEwNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
